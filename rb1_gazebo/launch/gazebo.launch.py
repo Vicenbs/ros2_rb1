@@ -88,7 +88,9 @@ def generate_launch_description():
             "/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
             "/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked",
             "/imu@sensor_msgs/msg/Imu[gz.msgs.IMU",
-            "/cmd_vel@geometry_msgs/msg/Twist[gz.msgs.Twist"
+            "/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist",
+            "/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry",
+            "/tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V"
         ],
         parameters=[os.path.join(get_package_share_directory(
             "rb1_gazebo"), "config", "gz_bridge.yaml")],
