@@ -31,77 +31,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
     <axis   xyz="0 0 0" />
    </joint>
 
-  <!-- Conollers -->
-  <ros2_control name="IgnitionSystem" type="system">
-    <hardware>
-      <plugin>ign_ros2_control/IgnitionSystem</plugin>
-    </hardware>
-
-    <joint name="left_wheel_joint">
-      <command_interface name="velocity">
-        <param name="min">-1</param>
-        <param name="max">1</param>
-      </command_interface>
-      <state_interface name="position"/>
-      <state_interface name="velocity"/>
-    </joint>
-
-    <joint name="right_wheel_joint">
-      <command_interface name="velocity">
-        <param name="min">-1</param>
-        <param name="max">1</param>
-      </command_interface>
-      <state_interface name="position"/>
-      <state_interface name="velocity"/>
-    </joint>
-
-    <joint name="j1_torso">
-      <command_interface name="position">
-        <param name="min">0</param>
-        <param name="max">0.36</param>
-      </command_interface>
-      <state_interface name="position">
-        <param name="initial_value">0.0</param>
-      </state_interface>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-
-    <joint name="j1_head">
-      <command_interface name="position">
-        <param name="min">-3.14159</param>
-        <param name="max">3.14159</param>
-      </command_interface>
-      <state_interface name="position">
-        <param name="initial_value">0.0</param>
-      </state_interface>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-
-    <joint name="j2_head">
-      <command_interface name="position">
-        <param name="min">-3.14159</param>
-        <param name="max">3.14159</param>
-      </command_interface>
-      <state_interface name="position">
-        <param name="initial_value">0.0</param>
-      </state_interface>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-  </ros2_control>
+  <!-- Controllers -->
+  <!-- ros2_control was removed because it deadlocks on the robot_description topic in ROS 2 Jazzy.
+       We use native Gazebo DiffDrive and JointStatePublisher instead. -->
 
   <gazebo>
-    <!-- <plugin filename="libign_ros2_control-system.so" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-      <parameters>$(find rb1_description)/config/rb1_control.yaml</parameters>
-      <ros>
-        <remapping>~/cmd_vel_unstamped:=cmd_vel</remapping>
-        <remapping>~/odom:=odom</remapping>
-        <remapping>/tf:=tf</remapping>
-        <remapping>/tf_static:=tf_static</remapping>
-      </ros>
-    </plugin> -->
+    <!-- Native Joint State Publisher to publish head and torso joints without ros2_control -->
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>joint_states</topic>
+    </plugin>
 
     <plugin
         filename="gz-sim-diff-drive-system"
@@ -114,7 +52,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
         <topic>cmd_vel</topic>
     </plugin>
 
-    <plugin filename="ignition-gazebo-odometry-publisher-system" name="ignition::gazebo::systems::OdometryPublisher">
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
       <odom_publish_frequency>50</odom_publish_frequency>
       <odom_topic>/odom</odom_topic>
       <odom_frame>odom</odom_frame>
@@ -122,12 +60,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
       <tf_topic>/tf</tf_topic>
     </plugin>
 
-    <plugin filename="libignition-gazebo-sensors-system.so" name="ignition::gazebo::systems::Sensors">
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
       <render_engine>ogre2</render_engine>
     </plugin>
 
-    <plugin filename="libignition-gazebo-imu-system.so"
-            name="ignition::gazebo::systems::Imu">
+    <plugin filename="gz-sim-imu-system"
+            name="gz::sim::systems::Imu">
     </plugin>
   </gazebo>
 

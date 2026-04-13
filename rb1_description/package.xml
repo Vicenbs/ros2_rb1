@@ -9,7 +9,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>ign_ros2_control</depend>
+  <depend>gz_ros2_control</depend>
   <depend>diff_drive_controller</depend>
   <depend>joint_state_broadcaster</depend>
   <depend>position_controllers</depend>

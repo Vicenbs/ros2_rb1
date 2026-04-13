@@ -81,16 +81,17 @@ def generate_launch_description():
         package="ros_gz_bridge",
         executable="parameter_bridge",
         arguments=[
-            "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
-            "/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
+            "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
+            "/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan",
             "/camera/image@sensor_msgs/msg/Image[gz.msgs.Image",
             "/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image",
             "/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
             "/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked",
             "/imu@sensor_msgs/msg/Imu[gz.msgs.IMU",
-            "/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist",
-            "/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry",
-            "/tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V"
+            "/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist",
+            "/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry",
+            "/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V",
+            "/world/LeonHome/model/rb1/joint_state@sensor_msgs/msg/JointState[gz.msgs.Model"
         ],
         parameters=[os.path.join(get_package_share_directory(
             "rb1_gazebo"), "config", "gz_bridge.yaml")],
@@ -98,7 +99,8 @@ def generate_launch_description():
             ("/camera/image", "/camera/rgb/image_raw"),
             ("/camera/depth_image", "/camera/depth/image_raw"),
             ("/camera/camera_info", "/camera/camera_info"),
-            ("/camera/points", "/camera/points")
+            ("/camera/points", "/camera/points"),
+            ("/world/LeonHome/model/rb1/joint_state", "/joint_states")
         ],
         output="screen"
     )

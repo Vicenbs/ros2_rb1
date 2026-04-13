@@ -1,17 +1,13 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <gz/plugin/Register.hh>
 #include <gz/sim/System.hh>
-#include <ignition/gazebo/System.hh>
-#include <ignition/gazebo/components/Pose.hh>
-#include <ignition/math/Vector3.hh>
+#include <gz/sim/components/Pose.hh>
+#include <gz/math/Vector3.hh>
 #include <mutex>
 #include <rclcpp/executors/single_threaded_executor.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/subscription.hpp>
 #include <thread>
-
-using namespace ignition;
-using namespace gazebo;
 
 class ActorCmdVelPlugin : public gz::sim::System,
                           public gz::sim::ISystemConfigure,
@@ -19,9 +15,9 @@ class ActorCmdVelPlugin : public gz::sim::System,
 public:
   ActorCmdVelPlugin() : node(nullptr), actorEntity(gz::sim::kNullEntity) {}
 
-  void Configure(const Entity &_entity,
+  void Configure(const gz::sim::Entity &_entity,
                  const std::shared_ptr<const sdf::Element> &,
-                 EntityComponentManager &_ecm, EventManager &) override {
+                 gz::sim::EntityComponentManager &_ecm, gz::sim::EventManager &) override {
 
     this->actorEntity = _entity;
     rclcpp::init(0, nullptr);
@@ -32,7 +28,7 @@ public:
             "/actor/cmd_vel", 10,
             [this](const geometry_msgs::msg::Twist::SharedPtr msg) {
               std::lock_guard<std::mutex> lock(this->mutex);
-              this->linearVel = ignition::math::Vector3d(
+              this->linearVel = gz::math::Vector3d(
                   msg->linear.x, msg->linear.y, msg->linear.z);
               RCLCPP_INFO(this->node->get_logger(),
                           "Cmd Vel Received: x=%.2f, y=%.2f, z=%.2f",
@@ -63,7 +59,7 @@ public:
       return;
     }
 
-    auto poseComp = _ecm.Component<components::Pose>(this->actorEntity);
+    auto poseComp = _ecm.Component<gz::sim::components::Pose>(this->actorEntity);
     if (!poseComp) {
       return;
     }
@@ -73,23 +69,28 @@ public:
                     .count();
     this->lastSimTime = _info.simTime;
 
-    ignition::math::Vector3d delta = this->linearVel * dt;
-    ignition::math::Vector3d newPos = currentPose.Pos() + delta;
+    gz::math::Vector3d delta = this->linearVel * dt;
+    gz::math::Vector3d newPos = currentPose.Pos() + delta;
 
     double yaw = currentPose.Rot().Yaw();
 
-    ignition::math::Pose3d newPose(newPos,
-                                   ignition::math::Quaterniond(0, 0, yaw));
+    gz::math::Pose3d newPose(newPos,
+                                   gz::math::Quaterniond(0, 0, yaw));
 
-    _ecm.SetComponentData<components::Pose>(this->actorEntity, newPose);
+    _ecm.SetComponentData<gz::sim::components::Pose>(this->actorEntity, newPose);
   }
 
-  ~ActorCmdVelPlugin() { rclcpp::shutdown(); }
+  ~ActorCmdVelPlugin() {
+    rclcpp::shutdown();
+    if (rosThread.joinable()) {
+      rosThread.join();
+    }
+  }
 
 private:
   std::shared_ptr<rclcpp::Node> node;
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmdVelSub;
-  ignition::math::Vector3d linearVel{0, 0, 0};
+  gz::math::Vector3d linearVel{0, 0, 0};
   std::mutex mutex;
   std::chrono::steady_clock::duration lastSimTime{};
   gz::sim::Entity actorEntity;
@@ -97,5 +98,5 @@ private:
   std::thread rosThread;
 };
 
-IGNITION_ADD_PLUGIN(ActorCmdVelPlugin, gz::sim::System,
+GZ_ADD_PLUGIN(ActorCmdVelPlugin, gz::sim::System,
                     gz::sim::ISystemConfigure, gz::sim::ISystemPreUpdate)

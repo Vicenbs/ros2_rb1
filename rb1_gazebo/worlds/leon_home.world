@@ -18,7 +18,7 @@
 
     <actor name="actor_gesture">
       <skin>
-          <filename>https://fuel.ignitionrobotics.org/1.0/Mingfei/models/actor/tip/files/meshes/talk_a.dae</filename>
+          <filename>https://fuel.gazebosim.org/1.0/Mingfei/models/actor/tip/files/meshes/talk_a.dae</filename>
           <scale>1.0</scale>
       </skin>
       <pose>-3.2 -0.3 0.01 0 0 0.27</pose>
